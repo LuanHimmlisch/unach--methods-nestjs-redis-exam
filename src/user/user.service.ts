@@ -21,6 +21,10 @@ export class UserService {
         return response;
     }
 
+    async exists(email: string): Promise<boolean> {
+        return await this.userRepository.exists({ where: { email: email } });
+    }
+
     notifyNewUser(user: User): Observable<any> {
         return this.client.emit('new_user', user);
     }

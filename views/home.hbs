@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="/style.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="flex justify-center items-center min-h-screen bg-gray-50">
+    <div class="p-10 w-full max-w-3xl bg-white rounded-2xl shadow-lg" x-data="{ user: null, email:'', password: '', errors: [] }">
+        <template x-if="!user">
+            <div>
+                <h1 class="mb-7 text-3xl font-black text-center text-gray-800">Registro para ser Chiludo</h1>
+                <form x-on:submit.prevent="() => {
+                    errors = [];
+                    
+                    fetch('/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({email: Alpine.raw(email), password: Alpine.raw(password)})
+                    }).then(v => v.json())
+                    .then((v) => {
+                        if(v.statusCode <= 400){
+                            if(typeof v.message === typeof []){
+                                errors = [...v.message];
+                            }else{
+                                errors.push(v.message);
+                            }
+                            return;
+                        }
+                        
+                        user = v;
+                    }).catch((v) => {
+                        errors = [v.toString()];
+                    })
+                }">
+                    <div class="flex flex-col gap-5">
+                        <input type="text" x-model="email" class="p-2 text-lg rounded-md border border-gray-400 shadow-md" placeholder="Email">
+                        <input type="password" x-model="password" class="p-2 text-lg rounded-md border border-gray-400 shadow-md" placeholder="Password">
+                    </div>
+                    <div class="my-5 text-center text-red-500">
+                        <template x-for="error in errors">
+                            <p x-text="error"></p>
+                        </template>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="px-5 py-3 text-lg text-white rounded-md shadow-md transition-colors hover:bg-blue-400"
+                            :class="errors.length ? 'bg-red-500' : 'bg-blue-500'">
+                            Registrarse
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </template>
+        <template x-if="user">
+            <div>
+                <h1 class="mb-7 text-3xl font-black text-center text-gray-800">Ya eres chiludo</h1>
+                <ul class="pl-5 space-y-2 list-disc">
+                    <li><span class="font-bold">ID de usuario:</span> <span x-text="user.id"></span></li>
+                    <li><span class="font-bold" Email:></span> <span x-text="user.email"></span></li>
+                    {{!-- <li><span class="font-bold">P:</span> <span x-text="user.email"></span></li> --}}
+                </ul>
+            </div>
+        </template>
+    </div>
+</body>
+
+</html>
